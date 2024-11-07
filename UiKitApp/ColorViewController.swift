@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ColorViewController: UIViewController, UITextFieldDelegate {
+class ColorViewController: UIViewController, UITextFieldDelegate, UITextInputTraits {
     @IBOutlet var colorLabel: UIView!
     
     @IBOutlet var redSlider: UISlider!
@@ -29,10 +29,9 @@ class ColorViewController: UIViewController, UITextFieldDelegate {
     var redSliderValue: Float = 0.0
     var greenSliderValue: Float = 0.0
     var blueSliderValue: Float = 0.0
-    
-    
+        
     var mainDelegate: MainDelegate!
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         colorLabel.layer.cornerRadius = 20
@@ -119,19 +118,21 @@ extension ColorViewController {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        validation(for: textField)
+        
         switch textField {
         case redTextField:
-            redSlider.value = Float(redTextField.text ?? "0")!
+            redSlider.value = Float(redTextField.text ?? "0") ?? 0.0
             redSliderValue = redSlider.value
             redProgressLabel.text = String(format: "%.2f", redSlider.value)
             redProgress = redSlider.value
         case greenTextField:
-            greenSlider.value = Float(greenTextField.text ?? "0")!
+            greenSlider.value = Float(greenTextField.text ?? "0") ?? 0.0
             greenSliderValue = greenSlider.value
             greenProgressLabel.text = String(format: "%.2f", greenSlider.value)
             greenProgress = greenSlider.value
         default:
-            blueSlider.value = Float(blueTextFiel.text ?? "0")!
+            blueSlider.value = Float(blueTextFiel.text ?? "0") ?? 0.0
             blueSliderValue = blueSlider.value
             blueProgressLabel.text = String(format: "%.2f", blueSlider.value)
             blueProgress = blueSlider.value
@@ -155,8 +156,30 @@ extension ColorViewController {
             blueSliderValue: blueSliderValue
         )
         
+        
         textField.resignFirstResponder()
         
         return true
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(
+            title: "Превышено кол-во символов",
+            message: "Максимальное количество символов 3",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func validation(for textField: UITextField) {
+        if let textCount = textField.text?.count{
+            if textCount > 4 {
+                textField.text = nil
+                showAlert()
+                return
+            }
+        }
     }
 }
